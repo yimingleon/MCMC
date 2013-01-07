@@ -11,7 +11,7 @@
 function [mixchi] = mixMCMC;
 load data.mat;
 
-maxlength = 1e5;
+maxlength = 1e4;
 chi2_expect = length(t);
 cycle = 1e2;
 
@@ -21,8 +21,14 @@ cycle = 1e2;
 %
 %in this case, parameter 1 is amplitude, parameter 2 is frequency
 
-boundary(1,:,:) = [0,2;0,2];
-boundary(2,:,:) = [0,2;2,4];
+%boundary(1,:,:) = [0,2;0,2];
+%boundary(2,:,:) = [0,2;2,4];
+
+%boundary(1,:,:) = [-2,0;0,7];
+%boundary(2,:,:) = [0,2;pi,7];
+boundary(1,:,:) = [0,2;-pi,pi];
+%boundary(4,:,:) = [-2,0;-7,0];
+%boundary(5,:,:) = [0,2;-7,-pi];
 
 sig = (boundary(:,:,2)-boundary(:,:,1))/50;
 boxsize = size(sig(1,:));
@@ -31,8 +37,14 @@ boxsize = size(sig(1,:));
 bound = permute(boundary,[2,3,1]);
 % thanks to the structure of the matlab 3dimentional matrix, when I access boundary(1,1,:), I got a size 1 1 2 matrix rather than an array. So I have to rearrange the size.
 
-subchain(1,:) = [1,1];
-subchain(2,:) = [1,3];
+%subchain(1,:) = [1,1];
+%subchain(2,:) = [1,3];
+
+%subchain(1,:) = [-1,pi];
+%subchain(2,:) = [1,2*pi];
+subchain(1,:) = [1,0];
+%subchain(4,:) = [-1,-pi];
+%subchain(5,:) = [1,-2*pi];
 
 noise = normrnd(0,sig,size(sig));
 subchain = subchain + noise;
@@ -57,6 +69,7 @@ leng = length(likeli);
 for i=1:leng
 	p = p + normlikeli(i);
 	p_ref = normlikeli(i);
+	fprintf('%d',i);
 	%p_ref is the reference of the normalised probability
 	%in the asymmetric Metropolis ratio, it may play an important role
 	%The meaning is the normalised probability for the subchain which has the newest point in main chain
@@ -76,6 +89,9 @@ n = 2;
 tic;
 while(n < maxlength)
 	if (~mod(n,100))
+		fprintf('%d\t',n);
+	end
+
 		if (max(chi2)-min(chi2)<3)
 			normlikeli = likeli/sum(likeli);
 		else
@@ -84,7 +100,7 @@ while(n < maxlength)
 			% since the MCMC method doesn't care how the candidate is generated, it's OK to do so.
 			normlikeli = normlikeli/sum(normlikeli);
 		end
-	end
+		normlikeli = 1/leng*ones(1,leng);
 
 	p = 0;
 	% p is the accumulating normalized probability
@@ -157,14 +173,21 @@ sigma1 = round(sizeofdata*0.683);
 sigma2 = round(sizeofdata*0.954);
 sigma3 = round(sizeofdata*0.9973);
 
-%figure
-%hold on
-%plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
-%plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
-%plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
-%xlabel('amplitude');
-%ylabel('\omega');
-%hold off
+figure
+hold on
+plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
+plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
+plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
+xlabel('amplitude');
+ylabel('\omega');
+hold off
+
+figure
+plot(sorted(1:sigma2,NoPara-1))
+ylim([-45,-34]);
+xlabel('iteration');
+ylabel('\chi^2');
+title('95% of chi-squared value for mixed MCMC');
 
 %ChainNumber = sortrows(chain(:,NoPara-2));
 %[sum(ChainNumber==1) sum(ChainNumber==2) sum(ChainNumber==3) sum(ChainNumber==4)]

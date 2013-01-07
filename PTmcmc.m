@@ -10,9 +10,9 @@ load data.mat;
 % q is the ratio of temperature between 2 neighber chains. according to christian Rover's PhD thesis.
 q=6.98;
 
-maxlength = 1e5;
+maxlength = 1e4;
 chi2_expect = length(t);
-Tmax = 1e3;
+Tmax = 1e1;
 No_chain = ceil(log(Tmax)/log(q));
 cycle = 1e2;
 target = 0.25;
@@ -22,7 +22,8 @@ successive = 5;
 
 %in this case, parameter 1 is amplitude, parameter 2 is frequency
 
-boundary = [0,2;0,4];
+%boundary = [-2,2;-7,7];
+boundary = [0,2;-pi,pi];
 
 sig(1,:) = (boundary(:,2)-boundary(:,1))/50;
 % this is the sigma of the proposed distribution of the normal noise
@@ -52,6 +53,7 @@ boxsize = size(sig(1,:));
 
 while(n < maxlength)
 	if (~mod(n,cycle))
+		fprintf('%d\t',n);
 		switch_params = switch_params + 1;
 		accep_rate = accept/cycle;
 		%fprintf('accep_rate is %g\t',accep_rate);
@@ -77,7 +79,10 @@ while(n < maxlength)
 
 
 	for i = 1:No_chain
-		new =  chains(i,:,n-1)+normrnd(0,sig(i,:),boxsize);
+		while(true) 
+			new =  chains(i,:,n-1)+normrnd(0,sig(i,:),boxsize);
+			if ([new<=boundary(:,2)',new>=boundary(:,1)']),break,end;
+		end
 		new_chi2 = likelihood(new,t,y,variance) - chi2_expect;
 		new_likeli = exp(-new_chi2/2);
 
@@ -145,5 +150,14 @@ base = sorted(1,NoPara);
 chivalue = [sorted(sigma1,NoPara)-base,sorted(sigma2,NoPara)-base,sorted(sigma3,NoPara)-base]
 
 toc;
-%clear
+figure('name','PTmcmc');
+plot(sorted(1:sigma2,NoPara))
+ylim([-45,-34]);
+xlabel('iteration');
+ylabel('\chi^2');
+title('95% of chi-squared value for parallel tempering');
+
+
+clear
+PTdraw
 return;
