@@ -183,7 +183,7 @@ hold off
 
 figure
 plot(sorted(1:sigma2,NoPara-1))
-%ylim([-45,-34]);
+ylim([-45,-34]);
 xlabel('iteration');
 ylabel('\chi^2');
 title('95% of chi-squared value for mixed MCMC');
@@ -194,7 +194,7 @@ subchain_distribution = [sum(ChainNumber==1) sum(ChainNumber==2) sum(ChainNumber
 %count
 base = sorted(1,NoPara-1);
 
-mixchi = [sorted(sigma1,NoPara-1)-base,sorted(sigma2,NoPara-1)-base,sorted(sigma3,NoPara-1)-base]
+mixchi = [sorted(sigma1,NoPara-1)-base,sorted(sigma2,NoPara-1)-base,sorted(sigma3,NoPara-1)-base];
 
 toc;
 return

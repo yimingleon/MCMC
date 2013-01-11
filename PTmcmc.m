@@ -10,7 +10,7 @@ load data.mat;
 % q is the ratio of temperature between 2 neighber chains. according to christian Rover's PhD thesis.
 q=6.98;
 
-maxlength = 1e4;
+maxlength = 1e5;
 chi2_expect = length(t);
 Tmax = 1e3;
 No_chain = ceil(log(Tmax)/log(q));
@@ -20,7 +20,7 @@ target = 0.25;
 successive = 5;
 % number of cycles to successively tweak the same parameter.
 
-swapPropLeng = 1;
+swapPropLeng = 30;
 swapPropProb = 1/swapPropLeng;
 
 %in this case, parameter 1 is amplitude, parameter 2 is frequency
@@ -158,7 +158,7 @@ chivalue = [sorted(sigma1,NoPara)-base,sorted(sigma2,NoPara)-base,sorted(sigma3,
 toc;
 figure('name','PTmcmc');
 plot(sorted(1:sigma2,NoPara))
-%ylim([-45,-34]);
+ylim([-45,-34]);
 xlabel('iteration');
 ylabel('\chi^2');
 title('95% of chi-squared value for parallel tempering');
