@@ -11,7 +11,7 @@
 function [mixchi] = mixMCMC;
 load data.mat;
 
-maxlength = 1e4;
+maxlength = 1e5;
 chi2_expect = length(t);
 cycle = 1e2;
 
@@ -24,11 +24,11 @@ cycle = 1e2;
 %boundary(1,:,:) = [0,2;0,2];
 %boundary(2,:,:) = [0,2;2,4];
 
-%boundary(1,:,:) = [-2,0;0,7];
-%boundary(2,:,:) = [0,2;pi,7];
-boundary(1,:,:) = [0,2;-pi,pi];
-%boundary(4,:,:) = [-2,0;-7,0];
-%boundary(5,:,:) = [0,2;-7,-pi];
+boundary(1,:,:) = [-2,0;0,7];
+boundary(2,:,:) = [0,2;pi,7];
+boundary(3,:,:) = [0,2;-pi,pi];
+boundary(4,:,:) = [-2,0;-7,0];
+boundary(5,:,:) = [0,2;-7,-pi];
 
 sig = (boundary(:,:,2)-boundary(:,:,1))/50;
 boxsize = size(sig(1,:));
@@ -40,11 +40,11 @@ bound = permute(boundary,[2,3,1]);
 %subchain(1,:) = [1,1];
 %subchain(2,:) = [1,3];
 
-%subchain(1,:) = [-1,pi];
-%subchain(2,:) = [1,2*pi];
-subchain(1,:) = [1,0];
-%subchain(4,:) = [-1,-pi];
-%subchain(5,:) = [1,-2*pi];
+subchain(1,:) = [-1,pi];
+subchain(2,:) = [1,2*pi];
+subchain(3,:) = [1,0];
+subchain(4,:) = [-1,-pi];
+subchain(5,:) = [1,-2*pi];
 
 noise = normrnd(0,sig,size(sig));
 subchain = subchain + noise;
@@ -69,7 +69,6 @@ leng = length(likeli);
 for i=1:leng
 	p = p + normlikeli(i);
 	p_ref = normlikeli(i);
-	fprintf('%d',i);
 	%p_ref is the reference of the normalised probability
 	%in the asymmetric Metropolis ratio, it may play an important role
 	%The meaning is the normalised probability for the subchain which has the newest point in main chain
@@ -100,7 +99,9 @@ while(n < maxlength)
 			% since the MCMC method doesn't care how the candidate is generated, it's OK to do so.
 			normlikeli = normlikeli/sum(normlikeli);
 		end
-		normlikeli = 1/leng*ones(1,leng);
+
+		%this is for the purpose of test
+		%normlikeli = 1/leng*ones(1,leng);
 
 	p = 0;
 	% p is the accumulating normalized probability
@@ -109,7 +110,10 @@ while(n < maxlength)
 	c = rand;
 	for i=1:leng
 		p = p + normlikeli(i);
-		if (c<p), break, end;
+		if (c<p)
+			%fprintf('%d',i);
+			break
+	       	end;
 	end
 	% pick the i^th subchain to generate a candidate
 
@@ -134,21 +138,15 @@ while(n < maxlength)
 	%coefficient = exp(1/2*sum(q.^2./sig(i,:).^2));
 	%note that the expression within bracket is positive instead of negative, since the original expression is 1/exp(-1/2...)
 	
-	coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2));
+	coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
+	%coefficient = p_ref/normlikeli(i);
+	%coefficient = 1;
 
 	r = new_likeli/chain(n-1,num_likeli)*coefficient;
 	%fprintf('%.2g\t',coefficient);
-	if (r<1)	
-		if (r<rand)
-			chain(n,:) = chain(n-1,:);
-			count = count - 1;
-		else
-			subchain(i,:) = new;
-			chi2(i) = new_chi2;
-			likeli(i) = new_likeli;
-			chain(n,:) = [subchain(i,:), i,chi2(i),likeli(i)];
-			p_ref = normlikeli(i);
-		end
+	if (r< rand)	
+		chain(n,:) = chain(n-1,:);
+		count = count - 1;
 	else
 		subchain(i,:) = new;
 		chi2(i) = new_chi2;
@@ -173,21 +171,21 @@ sigma1 = round(sizeofdata*0.683);
 sigma2 = round(sizeofdata*0.954);
 sigma3 = round(sizeofdata*0.9973);
 
-figure
-hold on
-plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
-plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
-plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
-xlabel('amplitude');
-ylabel('\omega');
-hold off
+%figure
+%hold on
+%plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
+%plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
+%plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
+%xlabel('amplitude');
+%ylabel('\omega');
+%hold off
 
-figure
-plot(sorted(1:sigma2,NoPara-1))
-ylim([-45,-34]);
-xlabel('iteration');
-ylabel('\chi^2');
-title('95% of chi-squared value for mixed MCMC');
+%figure
+%plot(sorted(1:sigma2,NoPara-1))
+%ylim([-45,-34]);
+%xlabel('iteration');
+%ylabel('\chi^2');
+%title('95% of chi-squared value for mixed MCMC');
 
 %ChainNumber = sortrows(chain(:,NoPara-2));
 %[sum(ChainNumber==1) sum(ChainNumber==2) sum(ChainNumber==3) sum(ChainNumber==4)]

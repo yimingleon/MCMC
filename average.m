@@ -6,8 +6,12 @@
 times = 100;
 
 for i = 1:times
-	%chivalue(i,:)=PTmcmc;
+	chivalue(i,:)=PTmcmc;
 	mixchi(i,:)= mixMCMC;
 end
+meanchimix=mean(mixchi)
+meanchiPT=mean(chivalue)
+
+save average.mat
 
 return

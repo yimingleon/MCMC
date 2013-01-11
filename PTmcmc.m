@@ -1,5 +1,5 @@
 %===================================================
-% this code is to check mixed MCMC
+% this code is to check mixed MCMC(using Parallel Tempering!)
 % using parallel tempering to sample, to see if the result are the same as mixed MCMC.
 % Yiming Hu, Sep, 2012
 %==================================================
@@ -10,9 +10,9 @@ load data.mat;
 % q is the ratio of temperature between 2 neighber chains. according to christian Rover's PhD thesis.
 q=6.98;
 
-maxlength = 1e4;
+maxlength = 1e5;
 chi2_expect = length(t);
-Tmax = 1e1;
+Tmax = 1e3;
 No_chain = ceil(log(Tmax)/log(q));
 cycle = 1e2;
 target = 0.25;
@@ -20,10 +20,12 @@ target = 0.25;
 successive = 5;
 % number of cycles to successively tweak the same parameter.
 
+swapPropLeng = 30;
+swapPropProb = 1/swapPropLeng;
+
 %in this case, parameter 1 is amplitude, parameter 2 is frequency
 
-%boundary = [-2,2;-7,7];
-boundary = [0,2;-pi,pi];
+boundary = [-2,2;-7,7];
 
 sig(1,:) = (boundary(:,2)-boundary(:,1))/50;
 % this is the sigma of the proposed distribution of the normal noise
@@ -111,21 +113,25 @@ while(n < maxlength)
 		end
 	end
 	
-	for i=2:No_chain
-		w = (likeli(n,i)/likeli(n,i-1))^(1/T(i-1)-1/T(i));
+	%for i=2:No_chain
+	if rand<swapPropProb
+		% propose a swap with some probability
+		i = randi(No_chain-1);
+		% propose pairs to be swapped
+		w = (likeli(n,i)/likeli(n,i+1))^(1/T(i+1)-1/T(i));
 		% probability to accept a swap;
 		if w>rand
 			new = chains(i,:,n);
-			chains(i,:,n) = chains(i-1,:,n);
-			chains(i-1,:,n) = new;
+			chains(i,:,n) = chains(i+1,:,n);
+			chains(i+1,:,n) = new;
 			
 			new_chi2 = chi2(n,i);
-			chi2(n,i) = chi2(n,i-1);
-			chi2(n,i-1) = new_chi2;
+			chi2(n,i) = chi2(n,i+1);
+			chi2(n,i+1) = new_chi2;
 			
 			new_likeli = likeli(n,i);
-			likeli(n,i) = likeli(n,i-1);
-			liekli(n,i-1) = new_likeli;
+			likeli(n,i) = likeli(n,i+1);
+			liekli(n,i+1) = new_likeli;
 		end
 	end
 	n=n+1;
@@ -147,17 +153,17 @@ sigma3 = round(sizeofdata*0.9973);
 
 base = sorted(1,NoPara);
 
-chivalue = [sorted(sigma1,NoPara)-base,sorted(sigma2,NoPara)-base,sorted(sigma3,NoPara)-base]
+chivalue = [sorted(sigma1,NoPara)-base,sorted(sigma2,NoPara)-base,sorted(sigma3,NoPara)-base];
 
 toc;
-figure('name','PTmcmc');
-plot(sorted(1:sigma2,NoPara))
-ylim([-45,-34]);
-xlabel('iteration');
-ylabel('\chi^2');
-title('95% of chi-squared value for parallel tempering');
+%figure('name','PTmcmc');
+%plot(sorted(1:sigma2,NoPara))
+%ylim([-45,-34]);
+%xlabel('iteration');
+%ylabel('\chi^2');
+%title('95% of chi-squared value for parallel tempering');
 
 
-clear
-PTdraw
+%PTdraw
 return;
+clear
