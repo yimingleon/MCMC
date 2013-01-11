@@ -166,29 +166,30 @@ save sampleing.mat;
 sizeofdata = length(chain);
 NoPara = length(chain(1,:));
 
+
 sorted = sortrows(chain,NoPara-1);
 sigma1 = round(sizeofdata*0.683);
 sigma2 = round(sizeofdata*0.954);
 sigma3 = round(sizeofdata*0.9973);
 
-%figure
-%hold on
-%plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
-%plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
-%plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
-%xlabel('amplitude');
-%ylabel('\omega');
-%hold off
+figure
+hold on
+plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
+plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
+plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
+xlabel('amplitude');
+ylabel('\omega');
+hold off
 
-%figure
-%plot(sorted(1:sigma2,NoPara-1))
+figure
+plot(sorted(1:sigma2,NoPara-1))
 %ylim([-45,-34]);
-%xlabel('iteration');
-%ylabel('\chi^2');
-%title('95% of chi-squared value for mixed MCMC');
+xlabel('iteration');
+ylabel('\chi^2');
+title('95% of chi-squared value for mixed MCMC');
 
-%ChainNumber = sortrows(chain(:,NoPara-2));
-%[sum(ChainNumber==1) sum(ChainNumber==2) sum(ChainNumber==3) sum(ChainNumber==4)]
+ChainNumber = sortrows(chain(:,NoPara-2));
+subchain_distribution = [sum(ChainNumber==1) sum(ChainNumber==2) sum(ChainNumber==3) sum(ChainNumber==4)]
 
 %count
 base = sorted(1,NoPara-1);
