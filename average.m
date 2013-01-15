@@ -3,14 +3,14 @@
 % the purpose is to check if the average results are similar in mean and variance
 % Yiming Hu, Sep, 2012
 %==================================================
-times = 100;
+times = 10;
 
 for i = 1:times
 	chivalue(i,:)=PTmcmc;
-	mixchi(i,:)= mixMCMC;
+	%mixchi(i,:)= mixMCMC;
 end
-meanchimix=mean(mixchi)
 meanchiPT=mean(chivalue)
+%meanchimix=mean(mixchi)
 
 save average.mat
 

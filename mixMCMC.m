@@ -68,12 +68,13 @@ leng = length(likeli);
 
 for i=1:leng
 	p = p + normlikeli(i);
-	p_ref = normlikeli(i);
 	%p_ref is the reference of the normalised probability
 	%in the asymmetric Metropolis ratio, it may play an important role
 	%The meaning is the normalised probability for the subchain which has the newest point in main chain
 	if (c<p), break, end;
 end
+p_ref = normlikeli(i);
+i_ref = i;
 
 chain(1,:) = [subchain(i,:), i,chi2(i),likeli(i)];
  	%points(1,:) = chain(1,:);
@@ -87,7 +88,7 @@ n = 2;
 
 tic;
 while(n < maxlength)
-	if (~mod(n,100))
+	if (~mod(n,1000))
 		fprintf('%d\t',n);
 	end
 
@@ -137,10 +138,15 @@ while(n < maxlength)
 	%coefficient = p_ref/normlikeli(i);
 	%coefficient = exp(1/2*sum(q.^2./sig(i,:).^2));
 	%note that the expression within bracket is positive instead of negative, since the original expression is 1/exp(-1/2...)
-	
-	coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
-	%coefficient = p_ref/normlikeli(i);
-	%coefficient = 1;
+	%previous expression has been proved to be wrong	
+
+	if i==i_ref
+		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
+		%coefficient = p_ref/normlikeli(i);
+	else
+		coefficient = 1;
+		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
+	end
 
 	r = new_likeli/chain(n-1,num_likeli)*coefficient;
 	%fprintf('%.2g\t',coefficient);
@@ -153,6 +159,7 @@ while(n < maxlength)
 		likeli(i) = new_likeli;
 		chain(n,:) = [subchain(i,:), i,chi2(i),likeli(i)];
 		p_ref = normlikeli(i);
+		i_ref = i;%the subchain that contains the updated point in main chain
 	end
 		%points(n,:) = [new,i,new_chi2,new_likeli];
 	%compare with former point
@@ -171,25 +178,29 @@ sorted = sortrows(chain,NoPara-1);
 sigma1 = round(sizeofdata*0.683);
 sigma2 = round(sizeofdata*0.954);
 sigma3 = round(sizeofdata*0.9973);
-
-figure
-hold on
-plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
-plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
-plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
-xlabel('amplitude');
-ylabel('\omega');
-hold off
-
-figure
-plot(sorted(1:sigma2,NoPara-1))
-ylim([-45,-34]);
-xlabel('iteration');
-ylabel('\chi^2');
-title('95% of chi-squared value for mixed MCMC');
+%
+%figure
+%hold on
+%axis([-1.5,1.5,2.5,7])
+%plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
+%plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
+%plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
+%xlabel('amplitude');
+%ylabel('\omega');
+%hold off
+%
+%figure
+%plot(sorted(1:sigma2,NoPara-1))
+%ylim([-45,-34]);
+%xlabel('iteration');
+%ylabel('\chi^2');
+%title('95% of chi-squared value for mixed MCMC');
 
 ChainNumber = sortrows(chain(:,NoPara-2));
-subchain_distribution = [sum(ChainNumber==1) sum(ChainNumber==2) sum(ChainNumber==3) sum(ChainNumber==4)]
+for i=1:leng
+	subchain_distribution(i) = sum(ChainNumber==i);
+end
+subchain_distribution
 
 %count
 base = sorted(1,NoPara-1);

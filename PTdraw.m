@@ -30,5 +30,5 @@ hold off
 base = sorted(1,NoPara);
 fprintf('Delta chi2 value for sigma1, 2 and 3 are %g,%g and %g\n',sorted(sigma1,NoPara)-base,sorted(sigma2,NoPara)-base,sorted(sigma3,NoPara)-base);
 
-clear
 return
+clear
