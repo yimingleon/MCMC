@@ -10,7 +10,7 @@ load data.mat;
 % q is the ratio of temperature between 2 neighber chains. according to christian Rover's PhD thesis.
 q=6.98;
 
-maxlength = 1e6;
+maxlength = 1e5;
 chi2_expect = length(t);
 Tmax = 1e3;
 No_chain = ceil(log(Tmax)/log(q));
@@ -20,7 +20,7 @@ target = 0.25;
 successive = 5;
 % number of cycles to successively tweak the same parameter.
 
-swapPropLeng = 1000;
+swapPropLeng = 100;
 swapPropProb = 1/swapPropLeng;
 
 %in this case, parameter 1 is amplitude, parameter 2 is frequency
@@ -132,7 +132,7 @@ while(n < maxlength)
 			
 			new_likeli = likeli(n,i);
 			likeli(n,i) = likeli(n,i+1);
-			liekli(n,i+1) = new_likeli;
+			likeli(n,i+1) = new_likeli;
 		end
 	end
 	n=n+1;
