@@ -122,7 +122,7 @@ count = 1;
 n = 2;
 
 tic;
-while(n < maxlength)
+while(n <= maxlength)
 	if (~mod(n,cycle))
 		fprintf('%d\t',n);
 	end
@@ -172,16 +172,16 @@ while(n < maxlength)
 	new_chi2 = likelihood(new,t,y,variance) - chi2_expect;
 	new_likeli = exp(-new_chi2/2);
 
-	if i == i_ref
-		coefficient = p_ref/normlikeli(i);
+	%if i == i_ref
+	%	coefficient = p_ref/normlikeli(i);
 	%coefficient = exp(1/2*sum(q.^2./sig(i,:).^2));
 	%note that the expression within bracket is positive instead of negative, since the original expression is 1/exp(-1/2...)
 	%previous expression has been proved to be wrong	
 
 	%coefficient = p_ref/normlikeli(i);
-	else
+	%else
 		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
-	end
+	%end
 
 	r = new_likeli/chain(n-1,num_likeli)*coefficient;
 	%fprintf('%.2g\t',coefficient);
@@ -214,22 +214,22 @@ sigma1 = round(sizeofdata*0.683);
 sigma2 = round(sizeofdata*0.954);
 sigma3 = round(sizeofdata*0.9973);
 %
-figure
-hold on
-%axis([-1.5,1.5,2.5,7])
-plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
-plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
-plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
-xlabel('amplitude');
-ylabel('\omega');
-hold off
+%figure
+%hold on
+%%axis([-1.5,1.5,2.5,7])
+%plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
+%plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
+%plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
+%xlabel('amplitude');
+%ylabel('\omega');
+%hold off
 
-figure
-plot(sorted(1:sigma3,NoPara-1))
-%ylim([-45,-34]);
-xlabel('iteration');
-ylabel('\chi^2');
-title('95% of chi-squared value for mixed MCMC');
+%figure
+%plot(sorted(1:sigma3,NoPara-1))
+%%ylim([-45,-34]);
+%xlabel('iteration');
+%ylabel('\chi^2');
+%title('95% of chi-squared value for mixed MCMC');
 
 ChainNumber = sortrows(chain(:,NoPara-2));
 for i=1:leng
@@ -243,12 +243,12 @@ base = sorted(1,NoPara-1);
 %mixchi = [sorted(sigma1,NoPara-1)-base,sorted(sigma2,NoPara-1)-base,sorted(sigma3,NoPara-1)-base];
 
 mixchi(1,:) = subchain_distribution;
-mixchi(2,:) = propose;
+%mixchi(2,:) = volume;
 
 mixchi = mixchi/maxlength;
 
 
-fprintf('the first line is the actual sample probability in different sub-chains\n while the second line is the proposed sample probability in different sub-chains\n the third line is the theoretical probability for all sub-chains\n');
+fprintf('the first line is the actual sample probability in different sub-chains\n while the second line is the proposed sample probability in different sub-chains\n');% the third line is the theoretical probability for all sub-chains\n');
 
 toc;
 return

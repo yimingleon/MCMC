@@ -10,7 +10,7 @@ function [chivalue]=PTmcmc;
 % q is the ratio of temperature between 2 neighber chains. according to christian Rover's PhD thesis.
 q=6.98;
 
-maxlength = 1e3;
+maxlength = 1e5;
 %chi2_expect = length(t);
 chi2_expect = 0;
 Tmax = 1e3;
@@ -26,7 +26,7 @@ swapPropProb = 1/swapPropLeng;
 
 %in this case, parameter 1 is amplitude, parameter 2 is frequency
 
-boundary = [-2,2;-7,7];
+boundary = [-2,2;-2,2];
 
 sig(1,:) = (boundary(:,2)-boundary(:,1))/10;
 % this is the sigma of the proposed distribution of the normal noise
@@ -39,6 +39,10 @@ for i = 1:No_chain
 	sig(i,:) = sig(1,:)*sqrt(T(i));
 end
 
+% just avoid bothering changing the whole code
+t = 1;
+y = 1;
+variance = 1;
 for i = 1:No_chain
 	chi2(1,i) = likelihood(chains(i,:,1),t,y,variance) - chi2_expect;
 	likeli(1,i) = exp(-chi2(1,i)/2);
@@ -54,23 +58,23 @@ switch_params = 0;
 accept = 0;
 boxsize = size(sig(1,:));
 
-while(n < maxlength)
+while(n <= maxlength)
 	if (~mod(n,cycle))
 		fprintf('%d\t',n);
 		switch_params = switch_params + 1;
 		accep_rate = accept/cycle;
 		%fprintf('accep_rate is %g\t',accep_rate);
-		if switch_params<successive
-			sig(1,1) = sig(1,1)*exp(-target+accep_rate);
-			%fprintf('amplitude changed to %g\n',sig(1,1));
-		else 
-			sig(1,2) = sig(1,2)*exp(-target+accep_rate);
-			%fprintf('frequency changed to %g\n',sig(1,1));
-			if switch_params == 2*successive
-				switch_params = 0;
-			end
-		end
-
+		%if switch_params<successive
+		%	sig(1,1) = sig(1,1)*exp(-target+accep_rate);
+		%	fprintf('sigma of amplitude changed to %g\n',sig(1,1));
+		%else 
+		%	sig(1,2) = sig(1,2)*exp(-target+accep_rate);
+		%	fprintf('sigma of frequency changed to %g\n',sig(1,2));
+		%	if switch_params == 2*successive
+		%		switch_params = 0;
+		%	end
+	%	end
+%
 		for i = 1:No_chain
 			sig(i,:) = sig(1,:)*sqrt(T(i));
 		end
@@ -139,8 +143,6 @@ while(n < maxlength)
 	n=n+1;
 end
 
-save PTsampleing.mat;
-
 chains = permute(chains,[2,3,1]);
 chains = chains(:,:,1);
 % this is to get only the lowest temperature chain, and make a 3D matrix to 2D.
@@ -155,17 +157,20 @@ sigma3 = round(sizeofdata*0.9973);
 
 base = sorted(1,NoPara);
 
-chivalue = [sorted(sigma1,NoPara)-base,sorted(sigma2,NoPara)-base,sorted(sigma3,NoPara)-base];
+%chivalue = [sorted(sigma1,NoPara)-base,sorted(sigma2,NoPara)-base,sorted(sigma3,NoPara)-base];
 
 toc;
 %figure('name','PT_mcmc');
 %plot(sorted(1:sigma2,NoPara))
-%ylim([-45,-34]);
+%%ylim([-45,-34]);
 %xlabel('iteration');
 %ylabel('\chi^2');
 %title('95% of chi-squared value for parallel tempering');
 %
 %
 %PTdraw
+save PTsampleing.mat;
+
+chivalue = twoDbin
 return;
 clear
