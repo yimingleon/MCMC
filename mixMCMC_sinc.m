@@ -29,9 +29,11 @@ cycle = 1e3;
 
 boundary(1,:,:) = [-2,-1;-2,-1];
 boundary(2,:,:) = [-1,1;-2,-1];
-boundary(3,:,:) = [1,2;-2,-1];
+%boundary(3,:,:) = [1,2;-2,-1];
+boundary(5,:,:) = [1,2;-2,-1];
 boundary(4,:,:) = [-2,-1;-1,1];
-boundary(5,:,:) = [-1,1;-1,1];
+%boundary(5,:,:) = [-1,1;-1,1];
+boundary(3,:,:) = [-1,1;-1,1];
 boundary(6,:,:) = [1,2;-1,1];
 boundary(7,:,:) = [-2,-1;1,2];
 boundary(8,:,:) = [-1,1;1,2];
@@ -49,9 +51,11 @@ bound = permute(boundary,[2,3,1]);
 
 subchain(1,:) = [-1.5,-1.5];
 subchain(2,:) = [0,-1.5];
-subchain(3,:) = [1.5,-1.5];
+%subchain(3,:) = [1.5,-1.5];
+subchain(5,:) = [1.5,-1.5];
 subchain(4,:) = [-1.5,0];
-subchain(5,:) = [0,0];
+%subchain(5,:) = [0,0];
+subchain(3,:) = [0,0];
 subchain(6,:) = [1.5,0];
 subchain(7,:) = [-1.5,1.5];
 subchain(8,:) = [0,1.5];
@@ -77,9 +81,11 @@ end
 fun = @(x,y) abs(sinc(x)).*abs(sinc(y));
 volume(1) = quad2d(fun,-2,-1,-2,-1);
 volume(2) = quad2d(fun,-1,1,-2,-1);
-volume(3) = quad2d(fun,1,2,-2,-1);
+%volume(3) = quad2d(fun,1,2,-2,-1);
+volume(5) = quad2d(fun,1,2,-2,-1);
 volume(4) = quad2d(fun,-2,-1,-1,1);
-volume(5) = quad2d(fun,-1,1,-1,1);
+%volume(5) = quad2d(fun,-1,1,-1,1);
+volume(3) = quad2d(fun,-1,1,-1,1);
 volume(6) = quad2d(fun,1,2,-1,1);
 volume(7) = quad2d(fun,-2,-1,1,2);
 volume(8) = quad2d(fun,-1,1,1,2);
@@ -181,6 +187,18 @@ while(n <= maxlength)
 	%coefficient = p_ref/normlikeli(i);
 	%else
 		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
+		
+	%if i_ref == 3 
+		if i ~= 3
+			coefficient = coefficient / 4;
+		end
+	%else 
+	%	if i == 3
+	%		coefficient = coefficient * 4;
+	%	end
+	%end
+			
+		
 	%end
 
 	r = new_likeli/chain(n-1,num_likeli)*coefficient;
@@ -202,8 +220,6 @@ while(n <= maxlength)
 	n=n+1;
 	count = count + 1;
 end
-
-save sampleing.mat;
 
 sizeofdata = length(chain);
 NoPara = length(chain(1,:));
@@ -244,12 +260,13 @@ base = sorted(1,NoPara-1);
 
 mixchi(1,:) = subchain_distribution;
 %mixchi(2,:) = volume;
-
 mixchi = mixchi/maxlength;
 
 
 fprintf('the first line is the actual sample probability in different sub-chains\n while the second line is the proposed sample probability in different sub-chains\n');% the third line is the theoretical probability for all sub-chains\n');
 
 toc;
+save sampleing.mat;
+
 return
 clear
