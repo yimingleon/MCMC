@@ -39,7 +39,7 @@ boundary(7,:,:) = [-2,-1;1,2];
 boundary(8,:,:) = [-1,1;1,2];
 boundary(9,:,:) = [1,2;1,2];
 
-sig = (boundary(:,:,2)-boundary(:,:,1))/10;
+sig = (boundary(:,:,2)-boundary(:,:,1))/5;
 boxsize = size(sig(1,:));
 % this is the sigma of the proposed distribution of the normal noise
 
@@ -92,6 +92,7 @@ volume(8) = quad2d(fun,-1,1,1,2);
 volume(9) = quad2d(fun,1,2,1,2);
 
 volume =volume/sum(volume);
+volume = [0.0070 0.0695 0.6938 0.0695 0.0070 0.0695 0.0070 0.0695 0.0070];
 
 
 
@@ -186,12 +187,13 @@ while(n <= maxlength)
 
 	%coefficient = p_ref/normlikeli(i);
 	%else
-		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
+	%	coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
+		coefficient = exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)))*p_ref;
 		
 	%if i_ref == 3 
-		if i ~= 3
-			coefficient = coefficient / 4;
-		end
+	%	if i ~= 3
+	%		coefficient = coefficient / 4;
+	%	end
 	%else 
 	%	if i == 3
 	%		coefficient = coefficient * 4;
@@ -230,22 +232,23 @@ sigma1 = round(sizeofdata*0.683);
 sigma2 = round(sizeofdata*0.954);
 sigma3 = round(sizeofdata*0.9973);
 %
-%figure
-%hold on
-%%axis([-1.5,1.5,2.5,7])
-%plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
-%plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
-%plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
-%xlabel('amplitude');
-%ylabel('\omega');
-%hold off
+figure
+hold on
+%axis([-1.5,1.5,2.5,7])
+plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
+plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
+plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
+xlabel('amplitude');
+ylabel('\omega');
+axis equal
+hold off
 
-%figure
-%plot(sorted(1:sigma3,NoPara-1))
-%%ylim([-45,-34]);
-%xlabel('iteration');
-%ylabel('\chi^2');
-%title('95% of chi-squared value for mixed MCMC');
+figure
+plot(sorted(1:sigma3,NoPara-1))
+%ylim([-45,-34]);
+xlabel('iteration');
+ylabel('\chi^2');
+title('95% of chi-squared value for mixed MCMC');
 
 ChainNumber = sortrows(chain(:,NoPara-2));
 for i=1:leng
@@ -256,11 +259,13 @@ subchain_distribution;
 count
 base = sorted(1,NoPara-1);
 
-%mixchi = [sorted(sigma1,NoPara-1)-base,sorted(sigma2,NoPara-1)-base,sorted(sigma3,NoPara-1)-base];
+mixchi = [sorted(sigma1,NoPara-1)-base,sorted(sigma2,NoPara-1)-base,sorted(sigma3,NoPara-1)-base];
 
-mixchi(1,:) = subchain_distribution;
+%mixchi = subchain_distribution/maxlength;
+
+%mixchi(1,:) = subchain_distribution;
 %mixchi(2,:) = volume;
-mixchi = mixchi/maxlength;
+%mixchi = mixchi/maxlength;
 
 
 fprintf('the first line is the actual sample probability in different sub-chains\n while the second line is the proposed sample probability in different sub-chains\n');% the third line is the theoretical probability for all sub-chains\n');
