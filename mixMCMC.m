@@ -30,7 +30,7 @@ boundary(3,:,:) = [0,2;-pi,pi];
 boundary(4,:,:) = [-2,0;-7,0];
 boundary(5,:,:) = [0,2;-7,-pi];
 
-sig = (boundary(:,:,2)-boundary(:,:,1))/50;
+sig = (boundary(:,:,2)-boundary(:,:,1))/100;
 boxsize = size(sig(1,:));
 % this is the sigma of the proposed distribution of the normal noise
 
@@ -92,17 +92,17 @@ while(n < maxlength)
 		fprintf('%d\t',n);
 	end
 
-		if (max(chi2)-min(chi2)<3)
-			normlikeli = likeli/sum(likeli);
-		else
-			normlikeli = exp(-chi2/(max(chi2)-min(chi2)));
-			% effectively 'tempering' it when generate candidate.
-			% since the MCMC method doesn't care how the candidate is generated, it's OK to do so.
-			normlikeli = normlikeli/sum(normlikeli);
-		end
+		%if (max(chi2)-min(chi2)<3)
+		%	normlikeli = likeli/sum(likeli);
+		%else
+		%	normlikeli = exp(-chi2/(max(chi2)-min(chi2)));
+		%	% effectively 'tempering' it when generate candidate.
+		%	% since the MCMC method doesn't care how the candidate is generated, it's OK to do so.
+		%	normlikeli = normlikeli/sum(normlikeli);
+		%end
 
 		%this is for the purpose of test
-		%normlikeli = 1/leng*ones(1,leng);
+		normlikeli = 1/leng*ones(1,leng);
 
 	p = 0;
 	% p is the accumulating normalized probability
@@ -141,12 +141,15 @@ while(n < maxlength)
 	%previous expression has been proved to be wrong	
 
 	if i==i_ref
-		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
+		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))/prod(sig(i,:))*prod(sig(i_ref,:));
+		%coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
 		%coefficient = p_ref/normlikeli(i);
 	else
 		coefficient = 1;
-		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
+	%	coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
 	end
+
+	gaussian(n-1,:) = q.^2./sig(i,:).^2;
 
 	r = new_likeli/chain(n-1,num_likeli)*coefficient;
 	%fprintf('%.2g\t',coefficient);
@@ -179,22 +182,22 @@ sigma1 = round(sizeofdata*0.683);
 sigma2 = round(sizeofdata*0.954);
 sigma3 = round(sizeofdata*0.9973);
 %
-%figure
-%hold on
+figure
+hold on
 %axis([-1.5,1.5,2.5,7])
-%plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
-%plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
-%plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
-%xlabel('amplitude');
-%ylabel('\omega');
-%hold off
-%
-%figure
-%plot(sorted(1:sigma2,NoPara-1))
-%ylim([-45,-34]);
-%xlabel('iteration');
-%ylabel('\chi^2');
-%title('95% of chi-squared value for mixed MCMC');
+plot(sorted(1:sigma1,1),sorted(1:sigma1,2),'.','Color','b');
+plot(sorted(sigma1+1:sigma2,1),sorted(sigma1+1:sigma2,2),'.','Color','g');
+plot(sorted(sigma2+1:sigma3,1),sorted(sigma2+1:sigma3,2),'.','Color','r');
+xlabel('amplitude');
+ylabel('\omega');
+hold off
+
+figure
+plot(sorted(1:sigma2,NoPara-1))
+ylim([-45,-34]);
+xlabel('iteration');
+ylabel('\chi^2');
+title('95% of chi-squared value for mixed MCMC');
 
 ChainNumber = sortrows(chain(:,NoPara-2));
 for i=1:leng
@@ -206,6 +209,7 @@ subchain_distribution
 base = sorted(1,NoPara-1);
 
 mixchi = [sorted(sigma1,NoPara-1)-base,sorted(sigma2,NoPara-1)-base,sorted(sigma3,NoPara-1)-base];
+mean(gaussian)
 
 toc;
 return
