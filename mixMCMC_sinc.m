@@ -39,7 +39,10 @@ boundary(7,:,:) = [-2,-1;1,2];
 boundary(8,:,:) = [-1,1;1,2];
 boundary(9,:,:) = [1,2;1,2];
 
-sig = (boundary(:,:,2)-boundary(:,:,1))/5;
+sig = (boundary(:,:,2)-boundary(:,:,1))/10;
+sig(3,:) = sig(3,:)/3;
+sig(2,:) = sig(2,:)/2;
+
 boxsize = size(sig(1,:));
 % this is the sigma of the proposed distribution of the normal noise
 
@@ -179,16 +182,17 @@ while(n <= maxlength)
 	new_chi2 = likelihood(new,t,y,variance) - chi2_expect;
 	new_likeli = exp(-new_chi2/2);
 
-	%if i == i_ref
-	%	coefficient = p_ref/normlikeli(i);
-	%coefficient = exp(1/2*sum(q.^2./sig(i,:).^2));
+	if i == i_ref
+		coefficient = p_ref/normlikeli(i);
+		%coefficient = exp(1/2*sum(q.^2./sig(i,:).^2));
 	%note that the expression within bracket is positive instead of negative, since the original expression is 1/exp(-1/2...)
 	%previous expression has been proved to be wrong	
 
 	%coefficient = p_ref/normlikeli(i);
-	%else
-	%	coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
-		coefficient = exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)))*p_ref;
+	else
+		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))/exp(1/2*sum(q.^2./sig(i_ref,:).^2))*prod(sig(i,:))/prod(sig(i_ref,:));%/exp(1/2*sum(q.^2./sig(i_ref,:)));%*2*pi*sqrt(prod(sig(i,:)));
+
+	%coefficient = exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)))*p_ref;
 		
 	%if i_ref == 3 
 	%	if i ~= 3
@@ -201,7 +205,7 @@ while(n <= maxlength)
 	%end
 			
 		
-	%end
+	end
 
 	r = new_likeli/chain(n-1,num_likeli)*coefficient;
 	%fprintf('%.2g\t',coefficient);
