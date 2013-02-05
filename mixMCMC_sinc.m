@@ -40,8 +40,6 @@ boundary(8,:,:) = [-1,1;1,2];
 boundary(9,:,:) = [1,2;1,2];
 
 sig = (boundary(:,:,2)-boundary(:,:,1))/10;
-sig(3,:) = sig(3,:)/3;
-sig(2,:) = sig(2,:)/2;
 
 boxsize = size(sig(1,:));
 % this is the sigma of the proposed distribution of the normal noise
@@ -190,7 +188,7 @@ while(n <= maxlength)
 
 	%coefficient = p_ref/normlikeli(i);
 	else
-		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))/exp(1/2*sum(q.^2./sig(i_ref,:).^2))*prod(sig(i,:))/prod(sig(i_ref,:));%/exp(1/2*sum(q.^2./sig(i_ref,:)));%*2*pi*sqrt(prod(sig(i,:)));
+		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2));%*prod(sig(i,:))/prod(sig(i_ref,:));%/exp(1/2*sum(q.^2./sig(i_ref,:)));%*2*pi*sqrt(prod(sig(i,:)));
 
 	%coefficient = exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)))*p_ref;
 		
