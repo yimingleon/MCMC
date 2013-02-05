@@ -181,7 +181,8 @@ while(n <= maxlength)
 	new_likeli = exp(-new_chi2/2);
 
 	if i == i_ref
-		coefficient = p_ref/normlikeli(i);
+		%coefficient = p_ref/normlikeli(i);
+		coefficient = 1;
 		%coefficient = exp(1/2*sum(q.^2./sig(i,:).^2));
 	%note that the expression within bracket is positive instead of negative, since the original expression is 1/exp(-1/2...)
 	%previous expression has been proved to be wrong	
