@@ -144,12 +144,12 @@ while(n < maxlength)
 	%note that the expression within bracket is positive instead of negative, since the original expression is 1/exp(-1/2...)
 	%previous expression has been proved to be wrong	
 
-	if i~=i_ref
-		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2));%/prod(sig(i,:))*prod(sig(i_ref,:));
+	if i==i_ref
+		coefficient = 1;
 		%coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
 		%coefficient = p_ref/normlikeli(i);
 	else
-		coefficient = 1;
+		coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2));%/prod(sig(i,:))*prod(sig(i_ref,:));
 	%	coefficient = p_ref/normlikeli(i)*exp(1/2*sum(q.^2./sig(i,:).^2))*2*pi*sqrt(prod(sig(i,:)));
 	end
 
